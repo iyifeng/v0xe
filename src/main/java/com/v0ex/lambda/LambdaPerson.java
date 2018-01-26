@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -22,10 +23,21 @@ public class LambdaPerson {
 
     private long taxRate;
 
+    private String status;
+
+
     public LambdaPerson(long id, long parentId, long taxRate) {
         this.id = id;
         this.parentId = parentId;
         this.taxRate = taxRate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public long getId() {
@@ -74,5 +86,17 @@ public class LambdaPerson {
                 .collect(Collectors.groupingBy(LambdaPerson::getParentId, Collectors.summingLong(o -> o.getTaxRate())));
         System.out.println(JSON.toJSONString(collect));
         LOGGER.info(JSON.toJSONString(collect));
+
+        /**
+         * 更新List
+         */
+        List<LambdaPerson> newList = result.parallelStream()
+                .filter(Objects::nonNull)
+                .map(o -> {
+                    o.setStatus("Y");
+                    return o;
+                })
+                .collect(Collectors.toList());
+        LOGGER.info(JSON.toJSONString(newList));
     }
 }
