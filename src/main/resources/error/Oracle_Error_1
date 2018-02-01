@@ -1,0 +1,5 @@
+question:
+org.springframework.jdbc.BadSqlGrammarException:
+### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: ORA-00911: 无效字符
+answer:
+自定义mybatis语句后面带了;

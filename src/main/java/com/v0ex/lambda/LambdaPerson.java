@@ -4,10 +4,7 @@ import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -98,5 +95,11 @@ public class LambdaPerson {
                 })
                 .collect(Collectors.toList());
         LOGGER.info(JSON.toJSONString(newList));
+
+        /**
+         * sort排序
+         */
+        result.sort(Comparator.comparingLong(LambdaPerson::getTaxRate));
+        LOGGER.info("排序以后结果集{}",JSON.toJSONString(result));
     }
 }
