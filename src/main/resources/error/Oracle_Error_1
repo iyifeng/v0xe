@@ -1,5 +1,28 @@
-question:
-org.springframework.jdbc.BadSqlGrammarException:
-### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: ORA-00911: 无效字符
-answer:
-自定义mybatis语句后面带了;
+question_1:
+    org.springframework.jdbc.BadSqlGrammarException:
+    ### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: ORA-00911: 无效字符
+answer_1:
+    自定义mybatis语句后面带了;
+
+question_2:
+    Exception in thread "main" java.lang.UnsupportedOperationException
+    	at java.util.AbstractList.remove(AbstractList.java:161)
+    	at java.util.AbstractList$Itr.remove(AbstractList.java:374)
+    	at java.util.AbstractCollection.retainAll(AbstractCollection.java:410)
+    	at com.v0ex.Collection.ListOps.main(ListOps.java:20)
+answer_2:
+    由于Arrays.asList() 返回java.util.Arrays$ArrayList， 而不是ArrayList。
+    Arrays$ArrayList和ArrayList都是继承AbstractList。
+    remove，add等method在AbstractList中是默认throw UnsupportedOperationException而且不作任何操作。
+    ArrayList override这些method来对list进行操作，但是Arrays$ArrayList没有override remove()，add()等，
+    所以throw UnsupportedOperationException。
+
+
+question_3:
+    中间结果集数量24
+    终极结果集数量70
+    =====
+    中间结果集数量20
+    终极结果集数量67
+answer_3:
+    lambda中的流处理，慎用.parallelStream(),会导致结果集不一样
