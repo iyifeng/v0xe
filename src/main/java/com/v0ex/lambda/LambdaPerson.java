@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -101,5 +102,19 @@ public class LambdaPerson {
          */
         result.sort(Comparator.comparingLong(LambdaPerson::getTaxRate));
         LOGGER.info("排序以后结果集{}",JSON.toJSONString(result));
+
+        /**
+         * 分组排序
+         */
+        Map<LambdaPerson, Long> collect1 = result.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        Map<LambdaPerson, Long> collect2 = result
+                .stream()
+                .sorted(Comparator.comparing(LambdaPerson::getTaxRate))
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        ArrayList<LambdaPerson> collect3 = result
+                .stream()
+                .sorted(Comparator.comparing(LambdaPerson::getTaxRate).reversed())
+                .collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(LambdaPerson::getParentId))), ArrayList::new));
+        LOGGER.info("分组排序以后结果集{}",JSON.toJSONString(collect3));
     }
 }

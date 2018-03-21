@@ -3,7 +3,7 @@ package com.v0ex.tree.multiwaytree;
 import java.util.List;
 
 /**
- * Created by zbj on 18/3/3.
+ * Created by zbj on 17/3/3.
  */
 public class TestNode {
 
