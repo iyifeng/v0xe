@@ -50,6 +50,7 @@ dependencies{
     compile "org.apache.velocity:velocity:1.7"
     compile "org.apache.velocity:velocity-tools:2.0"
     compile "com.aliyun.oss:aliyun-sdk-oss:2.8.3"
+    compile group: 'org.apache.poi', name: 'poi', version: '3.15'
     testCompile "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
 }
 
