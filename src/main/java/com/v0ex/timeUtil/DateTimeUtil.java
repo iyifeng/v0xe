@@ -35,6 +35,19 @@ public class DateTimeUtil {
         return format;
     }
 
+
+    /**
+     * 获取月份
+     * @param timeStamp
+     * @return
+     */
+    public static int getMonth(long timeStamp) {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(timeStamp);
+        //Time.MONTH及Calendar.MONTH 默认的月份为  0-11
+        return c.get(Calendar.MONTH)+1;
+    }
+
     public static void main(String[] args) throws ParseException {
         String convert = convert("2017-03-06 12:00:00");
         System.out.println(convert);
