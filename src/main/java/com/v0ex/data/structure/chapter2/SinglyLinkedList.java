@@ -15,11 +15,15 @@ public class SinglyLinkedList<T> implements LList<T> {
 
 
     public SinglyLinkedList(T[] element) {
-        this();//创建空的单链表
-        Node<T> rear = this.head;//rear指向单链表的最后一个结点
+        //创建空的单链表
+        this();
+        //rear指向单链表的最后一个结点
+        Node<T> rear = this.head;
         for (int i = 0; i < element.length; i++) {
-            rear.next = new Node<T>(element[i],null);//尾插入，创建结点链入rear结点之后
-            rear = rear.next;//rear指向新的链尾结点
+            //尾插入，创建结点链入rear结点之后
+            rear.next = new Node<T>(element[i],null);
+            //rear指向新的链尾结点
+            rear = rear.next;
         }
     }
 
@@ -31,7 +35,8 @@ public class SinglyLinkedList<T> implements LList<T> {
     @Override
     public int length() {
         int i = 0;
-        Node<T> p = this.head.next;//p从单链表的第一个结点开始
+        //p从单链表的第一个结点开始
+        Node<T> p = this.head.next;
         while (p!=null){
             i++;
             p = p.next;
@@ -46,29 +51,39 @@ public class SinglyLinkedList<T> implements LList<T> {
             for (int j = 0; p!=null&&j < i; j++) {
                 p = p.next;
             }
-            if (p!=null)
-                return p.data;//p指向第i个结点
+            if (p!=null){
+                //p指向第i个结点
+                return p.data;
+            }
         }
         return null;
     }
 
     @Override
     public void set(int i, T x) {
-        if (null == x)return;
+        if (null == x){
+            return;
+        }
         if (i>=0){
             Node<T> p = this.head.next;
             for (int j = 0; p!=null&&j < i ; j++) {
                 p = p.next;
             }
             if (p!=null){
-                p.data = x;//p指向第i个结点
+                //p指向第i个结点
+                p.data = x;
             }
-        }else throw new IndexOutOfBoundsException(i+"");//抛出数组越界异常
+        }else {
+            //抛出数组越界异常
+            throw new IndexOutOfBoundsException(i+"");
+        }
     }
 
     @Override
     public void insert(int i, T x) {
-        if (null == x)return;
+        if (null == x){
+            return;
+        }
         Node<T> p = this.head.next;
         for (int j = 0; p.next!=null&&j < i; j++) {
             p = p.next;
@@ -90,7 +105,8 @@ public class SinglyLinkedList<T> implements LList<T> {
                 p = p.next;
             }
             if (p.next!=null){
-                T old = p.next.data;//获得原对象
+                //获得原对象
+                T old = p.next.data;
                 p.next = p.next.next;
                 return old;
             }
@@ -100,12 +116,15 @@ public class SinglyLinkedList<T> implements LList<T> {
 
     @Override
     public void removeAll() {
-        this.head.next = null;//垃圾自动回收
+        //垃圾自动回收
+        this.head.next = null;
     }
 
     @Override
     public T search(T key) {
-        if (key==null)return null;
+        if (key==null){
+            return null;
+        }
         Node<T> p = this.head.next;
         while (p!=null){
             if (p.data.equals(key)){

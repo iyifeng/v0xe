@@ -117,4 +117,13 @@ public class LambdaPerson {
                 .collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(LambdaPerson::getParentId))), ArrayList::new));
         LOGGER.info("分组排序以后结果集{}",JSON.toJSONString(collect3));
     }
+
+
+    public List<Object> getObject(){
+        LambdaPerson l1 = new LambdaPerson(1,0,10);
+        ArrayList<LambdaPerson> list = new ArrayList<>();
+        list.add(l1);
+        List<Object> list1 = new ArrayList<Object>(list);
+        return list1;
+    }
 }

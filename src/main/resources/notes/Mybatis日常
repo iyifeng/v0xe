@@ -1,0 +1,5 @@
+表添加一条记录，返回该记录的Id
+
+<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="certInfoId">
+      SELECT LAST_INSERT_ID()
+</selectKey>

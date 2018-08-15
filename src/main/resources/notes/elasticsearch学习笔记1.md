@@ -38,4 +38,13 @@ To have launchd start kibana now and restart at login:
 Or, if you don't want/need a background service you can just run:
   kibana
 ```
+访问地址
+```
+http://localhost:5601
+```
 
+## 分词器拼音插件安装
+
+```
+https://github.com/medcl/elasticsearch-analysis-ik
+```
