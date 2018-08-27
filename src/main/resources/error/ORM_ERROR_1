@@ -1,0 +1,89 @@
+question_1:
+    Caused by: javax.persistence.EntityExistsException: A different object with the same identifier value was already associated with the session : [com.ai.train.repository.entity.TTrStaffEntity#0]
+    	at org.hibernate.jpa.spi.AbstractEntityManagerImpl.convert(AbstractEntityManagerImpl.java:1664)
+    	at org.hibernate.jpa.spi.AbstractEntityManagerImpl.convert(AbstractEntityManagerImpl.java:1602)
+    	at org.hibernate.jpa.spi.AbstractEntityManagerImpl.convert(AbstractEntityManagerImpl.java:1608)
+    	at org.hibernate.jpa.spi.AbstractEntityManagerImpl.persist(AbstractEntityManagerImpl.java:1152)
+    	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+    	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    	at java.lang.reflect.Method.invoke(Method.java:498)
+answer_1:
+hibernate的错误 different object with the same identifier value was already associated with the session
+
+1、今天在service层，循环保存导入的教室信息即Teacher对象，
+
+然后调用Dao层的保存方法saveTeachers（Teacher teacher），用hibernate的
+
+sessionFactory.getCurrentSession().save(teacher);
+org.hibernate.NonUniqueObjectException: A different object with the same identifier value was already associated with the session
+意思大概是说主键不唯一，即在事务的最后执行数据永久化时，session缓存里面有多个（>1）主键一样的对象。但，Teacher实体类对应的teacher表的id是自增长的主键，为什么还会有重复同一标识呢？
+
+2、通过查找资料，慢慢理解hibernate的事务了，事务流程大概是这样的
+
+
+      应用使用session.save()保存对象，这个时候Session将这个对象放入entityEntries，用来标记对象已经和当前的会话建立了关联，由于应用对对对象做了保存的操作，Session还要在insertions中登记应用的这个插入行为(行为包括：对象引用、对象id、Session、持久化处理类)。即，其实调用session.save(class)之后，hibernate并不会立即提交数据库，而是先将要保存，更新，删除放进了缓存中（为什么要这样做呢？我想应该是，一方面数据永久化，实际上是将数据保存到硬盘等存储介质，学过操作系统的人都知道，外存的读取和存放的消耗是主存的几个数量级别的消耗，先放到缓存中，然后一次性写入到存储介质，减少了读写消耗；另一方面，应该是为了高效率实现事务滚回，众所皆知，事务具有原子性，要么都成功完成，要么都失败，那么如果一个事务要调用多个dao层实现数据的增删改查，如果hibernate是一条修改语句就立刻修改数据库的数据，一条删除语句就删除了，那如果删除语句删除失败，那又要去硬盘修改回去数据，那么这样会大大增大cpu的资源消耗，但如果这些一开始是放到缓存中进行标记，最后如果事务完成，则自动将缓存标记的操作写入到数据库，这样就能提高资源利用率了，这就是hibernate自带的一级缓存功能），等整个事务操作完成后，事务提示，需要将所有缓存flush入数据库，Session启动一个事务，并按照insert ,update,...,delete的顺序提交所有之前登记的操作（注意：所有insert执行完毕后才会执行update，这里的特殊处理也可能会将你的程序搞得一团遭，如需要控制操作的顺序，需要使用flush）
+
+3、解释完事务流程，那么回答开始提出的问题，Teacher实体类对应的teacher表的id是自增长的主键，为什么还会有重复同一标识呢？因为每次调用sessionFactory.getCurrentSession().save(teacher)的时候，hibernate吧teacher实例对象保存到了缓存中，那么第二次循环保存第二个teacher实例时，因为在数据库设置的teacher主键是自增长的id，所以save时，我并没有给这两个teacher实例的id赋值，那么这两个实例在缓存中就没有唯一标识，这样就导致最后hibernate想要缓存中的实例写入到数据库时，没法区分这些实例了，也就报了这个错，我想，teacher表的自增长是只有在写入到数据库的时候，数据库会自动给赋值。
+
+4、最后解决这个问题的方式是，给Teacher的实体类的主键加一个注解@GeneratedValue(strategy = GenerationType.IDENTITY)  -->用IDENTITY告诉hibernate这个主键是自增长型，在调用save()的时候就在缓存中自动赋值
+
+    @Id
+    @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public int getId() {
+        return id;
+    }
+
+-------------------------------------------------------------------------
+
+问题场景
+问题出现环境：
+1、在同一事务内先后对同一条数据进行插入和更新操作；
+2、多台服务器操作同一数据库；
+3、瞬时出现高并发现象；
+
+不断的有一下异常抛出，异常信息：
+
+org.springframework.dao.CannotAcquireLockException:
+### Error updating database.  Cause: java.sql.SQLException: Lock wait timeout exceeded; try restarting transaction
+### The error may involve com.*.dao.mapper.PhoneFlowMapper.updateByPrimaryKeySelective-Inline
+### The error occurred while setting parameters
+### SQL:-----后面为SQL语句及堆栈信息--------
+1
+2
+3
+4
+5
+原因分析
+在高并发的情况下，Spring事物造成数据库死锁，后续操作超时抛出异常。
+Mysql数据库采用InnoDB模式，默认参数:innodb_lock_wait_timeout设置锁等待的时间是50s，一旦数据库锁超过这个时间就会报错。
+
+解决方案
+1、通过下面语句查找到为提交事务的数据，kill掉此线程即可。
+
+select * from information_schema.innodb_trx
+1
+2、增加锁等待时间，即增大下面配置项参数值，单位为秒（s）
+
+innodb_lock_wait_timeout=500
+1
+3、优化存储过程,事务避免过长时间的等待。
+
+参考信息
+1、锁等待超时。是当前事务在等待其它事务释放锁资源造成的。可以找出锁资源竞争的表和语句，优化SQL，创建索引等。如果还是不行，可以适当减少并发线程数。
+2、事务在等待给某个表加锁时超时，估计是表正被另的进程锁住一直没有释放。
+可以用 SHOW INNODB STATUS/G; 看一下锁的情况。
+3、搜索解决之道，在管理节点的[ndbd default]区加：
+TransactionDeadLockDetectionTimeOut=10000（设置 为10秒）默认是1200（1.2秒）
+4、InnoDB会自动的检测死锁进行回滚，或者终止死锁的情况。
+
+InnoDB automatically detects transaction deadlocks and rolls back a transaction or transactions to break the deadlock. InnoDB tries to pick small transactions to roll back, where the size of a transaction is determined by the number of rows inserted, updated, or deleted.
+
+如果参数innodb_table_locks=1并且autocommit=0时，InnoDB会留意表的死锁，和MySQL层面的行级锁。另外，InnoDB不会检测MySQL的Lock Tables命令和其他存储引擎死锁。你应该设置innodb_lock_wait_timeout来解决这种情况。
+innodb_lock_wait_timeout是Innodb放弃行级锁的超时时间。
+
+参考文章：http://www.51testing.com/html/16/390216-838016.html
+
+深入研究
+由于此项目采用Spring+mybatis框架，事物控制采用“org.springframework.jdbc.datasource.DataSourceTransactionManager”类进行处理。此处还需进行进一步调研Spring实现的机制。

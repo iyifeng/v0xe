@@ -85,6 +85,12 @@ public class LambdaPerson {
         System.out.println(JSON.toJSONString(collect));
         LOGGER.info(JSON.toJSONString(collect));
 
+        Map<Long, Map<Long, List<LambdaPerson>>> collect4 = result.stream()
+                .collect(Collectors.groupingBy(LambdaPerson::getParentId, Collectors.groupingBy(LambdaPerson::getTaxRate)));
+        collect4.forEach((k,v) -> {
+            System.out.println("======"+JSON.toJSONString(v));
+        });
+
         /**
          * 更新List
          */
@@ -119,11 +125,11 @@ public class LambdaPerson {
     }
 
 
-    public List<Object> getObject(){
-        LambdaPerson l1 = new LambdaPerson(1,0,10);
-        ArrayList<LambdaPerson> list = new ArrayList<>();
-        list.add(l1);
-        List<Object> list1 = new ArrayList<Object>(list);
-        return list1;
-    }
+//    public List<Object> getObject(){
+//        LambdaPerson l1 = new LambdaPerson(1,0,10);
+//        ArrayList<LambdaPerson> list = new ArrayList<>();
+//        list.add(l1);
+//        List<Object> list1 = new ArrayList<Object>(list);
+//        return list1;
+//    }
 }
