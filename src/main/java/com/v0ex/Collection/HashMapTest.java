@@ -9,14 +9,19 @@ import java.util.Map;
  */
 public class HashMapTest {
 
+    static final int MAXIMUM_CAPACITY = 1 << 30;
+
     public static void main(String[] args) {
-        System.out.println(15 & 50);
+        System.out.println(16 & 17);
+        System.out.println(32 & 17);
         System.out.println(15 & 3737573);
         Map<String,String> map = new HashMap();
         String put = map.put("2", "1");
         String put1 = map.put("2", "2");
         System.out.println(put);
         System.out.println(put1);
+
+
 
 //        int n = 5;
 //        System.out.println(n >>> 1);

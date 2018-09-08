@@ -22,6 +22,11 @@ Or, if you don't want/need a background service you can just run:
 curl -XGET 'localhost:9200/?pretty'
 ```
 
+查看elasticsearch进程
+```
+ps aux | grep elasticsearch
+```
+
 ## Kibana安装
 
 OSX系统安装
