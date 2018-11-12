@@ -1,0 +1,9 @@
+question_1:
+    Usage: grep [OPTION]... PATTERN [FILE]...
+    Try 'grep --help' for more information.
+    Error: Unable to access jarfile /usr/local/kara-account-aicustomized/libs/kara-account-aicustomized-1.0.0.jar
+    start
+    server started!! logs at /usr/local/kara-account-aicustomized/logs/kara-account-aicustomized.log
+answer_1:
+    是因为在application.yml文件中version=1.0，这样生成的jar包是**-1.0.jar。
+    要么修改version=1.0.0要么修改dockerfile文件

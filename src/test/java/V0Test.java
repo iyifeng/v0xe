@@ -1,3 +1,8 @@
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+
+import java.util.LinkedList;
+import java.util.Queue;
+
 /**
  * @author zbj
  * @date 17/8/21
@@ -13,5 +18,6 @@ public class V0Test {
         double j = 3;
         System.out.println(j/i);
 
+        Queue queue = new LinkedList();
     }
 }
