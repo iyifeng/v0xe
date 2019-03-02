@@ -1,0 +1,13 @@
+总结：
+Transactional 注解可以被应用于接口定义和接口方法、类定义和类的 public 方法上。
+“proxy-target-class” 属性值来控制是基于接口的还是基于类的代理被创建。 <tx:annotation-driven transaction-manager=“transactionManager” proxy-target-class=“true”/> 注意：proxy-target-class属性值决定是基于接口的还是基于类的代理被创建。如果proxy-target-class 属性值被设置为true，那么基于类的代理将起作用（这时需要cglib库）。如果proxy-target-class属值被设置为false或者这个属性被省略，那么标准的JDK 基于接口的代理。
+注解@Transactional cglib与java动态代理最大区别是代理目标对象不用实现接口,那么注解要是写到接口方法上，要是使用cglib代理，这是注解事物就失效了，为了保持兼容注解最好都写到实现类方法上。
+Spring团队建议在具体的类（或类的方法）上使用 @Transactional 注解，而不要使用在类所要实现的任何接口上。在接口上使用 @Transactional 注解，只能当你设置了基于接口的代理时它才生效。因为注解是 不能继承的，这就意味着如果正在使用基于类的代理时，那么事务的设置将不能被基于类的代理所识别，而且对象也将不会被事务代理所包装。
+@Transactional 的事务开启 ，或者是基于接口的 或者是基于类的代理被创建。所以在同一个类中一个方法调用另一个方法有事务的方法，事务是不会起作用的。 原因：（这也是为什么在项目中有些@Async并没有异步执行） spring 在扫描bean的时候会扫描方法上是否包含@Transactional注解，如果包含，spring会为这个bean动态地生成一个子类（即代理类，proxy），代理类是继承原来那个bean的。此时，当这个有注解的方法被调用的时候，实际上是由代理类来调用的，代理类在调用之前就会启动transaction。然而，如果这个有注解的方法是被同一个类中的其他方法调用的，那么该方法的调用并没有通过代理类，而是直接通过原来的那个bean，所以就不会启动transaction，我们看到的现象就是@Transactional注解无效。
+Tips： 使用 ~for update ~实现实现悲观锁的时候，需要注意锁的级别，Mysql InnoDB 默认行级锁。行级锁都是基于索引的，如果一条sql语句用不到索引，是不会使用行级锁的，会使用表级，把整张表锁住，这点需要注意。
+
+Tips： 使用乐观锁时多数实现方法是使用版本号，或者时间戳。但是如果事务的隔离级别允许重复读（比如：REPEATABLE_READ；mysql InnoDB默认也是这个级别）,那么使用乐观锁是查询不出版本或者时间戳的变化的,但是oracle的话默认就可以。
+
+Tips： spring默认的事务隔离级别为底层数据区的隔离级别。所以，如果你用的是Mysql的InnoDB引擎，那么级别就是：REPEATABLE READ；如果你用的是oracle，那么级别就是READ COMMITED。
+
+Tips： spring的@Transactional注解事务创博行为默认值为：PROPAGATION_REQUIRED

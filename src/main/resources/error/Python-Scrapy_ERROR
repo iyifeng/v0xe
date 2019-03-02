@@ -1,0 +1,30 @@
+
+question_1:
+    pip3 install Scarpy 出错Command "python setup.py egg_info" failed with error code 1 in /private/var/folders/z5/9myf58gd0q5cj6hh8pnsfm800000gn/T/pip-build-do6a4sxu/Twisted/
+answer_1:
+    以上原因主要是由于证书问题导致的，解决办法如下：
+
+    $ wget http://curl.haxx.se/ca/cacert.pem
+
+    $ mv cacert.pem ca-bundle.crt
+
+    $ sudo cp ca-bundle.crt /etc/pki/tls/certs/
+
+    注意：在/etc 下，可能并没有/pki/tls/certs/等目录，此时需要手动创建
+
+    cd /etc
+
+    sudo mkdir pki
+
+    cd pki
+
+    sudo mkdir tls
+
+    cd tls
+
+    sudo mkdir certs
+    然后执行 命令 pip3 install scrapy
+
+    安装完成
+
+    参考：https://www.cnblogs.com/muyunlee/p/7815996.html
